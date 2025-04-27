@@ -6,7 +6,7 @@
 --]]
 
 -- 定义需要禁用的按键，包括常用移动键和方向键
-local wasdKeys = { "W", "A", "S", "D", "Q", "E", "UP", "DOWN", "LEFT", "RIGHT" }
+local wasdKeys = { "W", "A", "S", "D", "Q", "E", "UP", "DOWN", "LEFT", "RIGHT", "SPACE" } -- 加入SPACE禁用跳跃
 
 -- 用于保存每个按键的原始绑定，便于后续恢复
 local originalBindings = {}
@@ -45,51 +45,20 @@ local playerMoveState = {}
 local function PlayerIsMoving()
     -- 1.12没有IsMoving，可以用速度判断
     local x, y = GetPlayerMapPosition("player")
+    local now = GetTime()
     if not playerMoveState.lastX then
         playerMoveState.lastX, playerMoveState.lastY = x, y
-        playerMoveState.lastTime = GetTime()
+        playerMoveState.lastTime = now
+        return false -- 未知时视为未移动
+    end
+    -- 增加时间间隔判断，避免频繁刷新导致误判
+    if now - (playerMoveState.lastTime or 0) < 0.2 then
         return false
     end
     local moved = (x ~= playerMoveState.lastX or y ~= playerMoveState.lastY)
     playerMoveState.lastX, playerMoveState.lastY = x, y
+    playerMoveState.lastTime = now
     return moved
-end
-
--- 禁用移动键的具体实现
-local function ReallyDisableWASD()
-    for _, key in ipairs(wasdKeys) do
-        -- 保存当前按键的原始绑定动作（如MOVEFORWARD等）
-        originalBindings[key] = GetBindingAction(key)
-        -- 清除该按键的绑定（解除绑定）
-        SetBinding(key)
-    end
-    -- 保存当前绑定设置，确保更改生效
-    SaveBindings(GetCurrentBindingSet())
-end
-
--- 禁用WASD及相关按键的函数
-local function DisableWASD()
-    -- 无论是否移动都先提示
-    ShowBigMessage("【DT_Mephistroth】已禁用移动键，请松开WASD/方向键！")
-    if UIErrorsFrame then
-        UIErrorsFrame:AddMessage("【DT_Mephistroth】已禁用移动键，请松开WASD/方向键！", 1, 0, 0, 1, 3)
-    elseif DEFAULT_CHAT_FRAME then
-        DEFAULT_CHAT_FRAME:AddMessage("【DT_Mephistroth】已禁用移动键，请松开WASD/方向键！")
-    end
-    -- 检查玩家是否在移动
-    if not PlayerIsMoving() then
-        ReallyDisableWASD()
-    else
-        -- 如果玩家正在移动，稍后再禁用
-        DT_Timer.After(1.8, function()
-            if not PlayerIsMoving() then
-                ReallyDisableWASD()
-            else
-                -- 如果仍在移动，继续检查
-                DisableWASD()
-            end
-        end)
-    end
 end
 
 -- 恢复WASD及相关按键原始绑定的函数
@@ -103,6 +72,39 @@ local function RestoreWASD()
     SaveBindings(GetCurrentBindingSet())
 end
 
+-- 禁用移动键的具体实现
+local function ReallyDisableWASD()
+    for _, key in ipairs(wasdKeys) do
+        -- 保存当前按键的原始绑定动作（如MOVEFORWARD等）
+        originalBindings[key] = GetBindingAction(key)
+        -- 清除该按键的绑定（解除绑定）
+        SetBinding(key)
+    end
+    -- 保存当前绑定设置，确保更改生效
+    SaveBindings(GetCurrentBindingSet())
+
+    -- 7秒后自动恢复按键绑定
+    DT_Timer.After(7, RestoreWASD)
+end
+
+-- 禁用WASD及相关按键的函数
+local function DisableWASD()
+    -- 检查玩家是否在移动
+    if PlayerIsMoving() == false then
+        ReallyDisableWASD()
+    else
+        -- 如果玩家正在移动，稍后再禁用
+        DT_Timer.After(1.8, function()
+            if PlayerIsMoving() == false then
+                ReallyDisableWASD()
+            else
+                -- 如果仍在移动，继续检查
+                DisableWASD()
+            end
+        end)
+    end
+end
+
 -- 聊天消息事件处理函数
 -- 当检测到BOSS喊话“Mephistroth begins to cast Shackles”时，禁用按键7秒
 local function OnChatMessage(event, message)
@@ -110,8 +112,8 @@ local function OnChatMessage(event, message)
     -- 检查是否为目标BOSS喊话
     if string.find(message, "Mephistroth begins to cast Shackles of the Legion") then
         DisableWASD()
-        -- 7秒后自动恢复按键绑定
-        DT_Timer.After(7, RestoreWASD)
+        -- 无论是否移动都先提示
+        ShowBigMessage("【DT_Mephistroth】已禁用移动键，请松开WASD/方向键！")
     end
 end
 
