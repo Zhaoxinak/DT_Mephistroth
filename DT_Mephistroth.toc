@@ -1,0 +1,19 @@
+## Interface: 11200
+## Title: |cff33ffcc[工具]|cffffffffMephistroth
+## Title-zhCN: |cff33ffcc[工具]|cffffffffMephistroth按键禁用
+## Notes: |R |cff33ffccMephistroth战斗期间禁用WASD等按键，作者：果盘杀手, 二狗子 - 天空之城（乌龟拉风服务器）。
+## Author: 果盘杀手, 二狗子 - 天空之城（乌龟拉风服务器）
+## X-Website: https://github.com/Zhaoxinak/DT_Mephistroth
+## Version: 1.0
+## SavedVariables:
+## LoadOnDemand: 0
+## Category: Raid
+## DefaultState: enabled
+## Dependencies:
+## OptionalDeps:
+## Notes-zhCN: 在BOSS Mephistroth施放“Shackles of the Legion!”时自动禁用WASD及方向键，7秒后恢复。
+## X-Category: Raid Utility
+
+# 依赖的Lua文件，顺序不能错
+DT_Timer.lua
+DT_Mephistroth.lua
