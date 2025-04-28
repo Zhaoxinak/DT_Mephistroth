@@ -11,7 +11,7 @@
 ## DefaultState: enabled
 ## Dependencies:
 ## OptionalDeps:
-## Notes-zhCN: 在BOSS Mephistroth施放“Shackles of the Legion!”时自动禁用WASD及方向键，7秒后恢复。
+## Notes-zhCN: 在BOSS Mephistroth施放“Shackles of the Legion!”时自动禁用WASD及方向键，8秒后恢复。
 ## X-Category: Raid Utility
 
 # 依赖的Lua文件，顺序不能错

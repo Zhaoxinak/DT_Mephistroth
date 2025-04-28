@@ -1,6 +1,6 @@
 --[[
     Mephistroth 按键禁用助手主文件
-    当BOSS Mephistroth施放“Shackles of the Legion!”时，自动禁用WASD及方向键，7秒后恢复。
+    当BOSS Mephistroth施放“Shackles of the Legion!”时，自动禁用WASD及方向键，8秒后恢复。
     适用于魔兽世界乌龟服 1.12.x
     作者：果盘杀手, 二狗子 - 天空之城（乌龟拉风服务器）
 --]]
@@ -36,8 +36,8 @@ local function ShowBigMessage(msg)
     DT_Mephistroth_BigMsg.text:SetText(msg)
     DT_Mephistroth_BigMsg.text:SetTextColor(1, 0, 0) -- 确保每次都为红色
     DT_Mephistroth_BigMsg:Show()
-    -- 3秒后自动隐藏
-    DT_Timer.After(7, function() DT_Mephistroth_BigMsg:Hide() end)
+    -- 8秒后自动隐藏
+    DT_Timer.After(8, function() DT_Mephistroth_BigMsg:Hide() end)
 end
 
 -- 检查玩家是否在移动
@@ -83,8 +83,8 @@ local function ReallyDisableWASD()
     -- 保存当前绑定设置，确保更改生效
     SaveBindings(GetCurrentBindingSet())
 
-    -- 7秒后自动恢复按键绑定
-    DT_Timer.After(7, RestoreWASD)
+    -- 8秒后自动恢复按键绑定
+    DT_Timer.After(8, RestoreWASD)
 end
 
 -- 禁用WASD及相关按键的函数
@@ -106,14 +106,14 @@ local function DisableWASD()
 end
 
 -- 聊天消息事件处理函数
--- 当检测到BOSS喊话“Mephistroth begins to cast Shackles”时，禁用按键7秒
+-- 当检测到BOSS喊话“Mephistroth begins to cast Shackles”时，禁用按键8秒
 local function OnChatMessage(event, message)
     if not message then return end
     -- 检查是否为目标BOSS喊话
     if string.find(message, "Mephistroth begins to cast Shackles of the Legion") then
-        DisableWASD()
+        -- DisableWASD()
         -- 无论是否移动都先提示
-        ShowBigMessage("【DT_Mephistroth】已禁用移动键，请松开WASD/方向键！")
+        ShowBigMessage("【DT_Mephistroth】警告!!!，警告!!!，请松开WASD/方向键!")
     end
 end
 
