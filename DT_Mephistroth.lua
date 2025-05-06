@@ -11,6 +11,24 @@ local wasdKeys = { "W", "A", "S", "D", "Q", "E", "UP", "DOWN", "LEFT", "RIGHT", 
 -- 用于保存每个按键的原始绑定，便于后续恢复
 local originalBindings = {}
 
+-- 多语言本地化表
+local locale = GetLocale()
+local L = {}
+
+if locale == "zhCN" then
+    L.BOSS_CAST = "Mephistroth begins to cast Shackles of the Legion"
+    L.BOSS_CAST_CN = "孟菲斯托斯开始施放军团镣铐"
+    L.BIGMSG = "【DT_Mephistroth】警告!!!警告!!!，请松开WASD/方向键！"
+elseif locale == "zhTW" then
+    L.BOSS_CAST = "Mephistroth begins to cast Shackles of the Legion"
+    L.BOSS_CAST_CN = "梅菲斯托斯開始施放軍團鐐銬"
+    L.BIGMSG = "【DT_Mephistroth】警告!!!警告!!!，請鬆開WASD/方向鍵！"
+else
+    L.BOSS_CAST = "Mephistroth begins to cast Shackles of the Legion"
+    L.BOSS_CAST_CN = nil
+    L.BIGMSG = "[DT_Mephistroth] WARNING!!! WARNING!!! Release WASD/Arrow keys now!"
+end
+
 -- 创建一个大字体提示的函数
 local function ShowBigMessage(msg)
     if not DT_Mephistroth_BigMsg then
@@ -22,7 +40,7 @@ local function ShowBigMessage(msg)
         -- 黑色背景
         local bg = f:CreateTexture(nil, "BACKGROUND")
         bg:SetAllPoints()
-        bg:SetTexture(0, 0, 0, 0.85) -- 1.12用SetTexture代替SetColorTexture
+        bg:SetTexture(0, 0, 0, 0.6) -- 1.12用SetTexture代替SetColorTexture
         f.bg = bg
         local text = f:CreateFontString(nil, "OVERLAY")
         text:SetFont("Fonts\\FRIZQT__.TTF", 120, "OUTLINE") -- 字体更大
@@ -74,6 +92,8 @@ end
 
 -- 禁用移动键的具体实现
 local function ReallyDisableWASD()
+    if PlayerIsMoving() == true then return end -- 如果玩家未移动，则不执行
+
     for _, key in ipairs(wasdKeys) do
         -- 保存当前按键的原始绑定动作（如MOVEFORWARD等）
         originalBindings[key] = GetBindingAction(key)
@@ -109,11 +129,11 @@ end
 -- 当检测到BOSS喊话“Mephistroth begins to cast Shackles”时，禁用按键8秒
 local function OnChatMessage(event, message)
     if not message then return end
-    -- 检查是否为目标BOSS喊话
-    if string.find(message, "Mephistroth begins to cast Shackles of the Legion") then
+    -- 检查是否为目标BOSS喊话（多语言）
+    if string.find(message, L.BOSS_CAST)
+        or (L.BOSS_CAST_CN and string.find(message, L.BOSS_CAST_CN)) then
         -- DisableWASD()
-        -- 无论是否移动都先提示
-        ShowBigMessage("【DT_Mephistroth】警告!!!，警告!!!，请松开WASD/方向键!")
+        ShowBigMessage(L.BIGMSG)
     end
 end
 
